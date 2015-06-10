@@ -14,7 +14,11 @@ protocol APIControllerProtocol {
 
 class APIController {
     
-    var delegate: APIControllerProtocol?
+    init(delegate: APIControllerProtocol) {
+        self.delegate = delegate
+    }
+    
+    var delegate: APIControllerProtocol
     
     func searchForItunes(searchTerm: String) {
         // The iTunes API wants multiple terms seperated by + symbols, so replace spaces with + signs
@@ -22,7 +26,7 @@ class APIController {
         
         // Now escape anything else that isn't url friendly
         if let escapedSearchTerm = itunesSearchTerm.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding) {
-            let urlPath = "http://itunes.apple.com/search?term=\(escapedSearchTerm)&media=software"
+            let urlPath = "http://itunes.apple.com/search?term=\(escapedSearchTerm)&media=music&entity=album"
             let url = NSURL(string: urlPath)
             let session = NSURLSession.sharedSession()
             let task = session.dataTaskWithURL(url!, completionHandler: {data, response, error -> Void in
@@ -38,7 +42,7 @@ class APIController {
                         println("JSON error \(err!.localizedDescription)")
                     }
                     if let results: NSArray = jsonResult["results"] as? NSArray {
-                        self.delegate?.didReceiveAPIResults(results)
+                        self.delegate.didReceiveAPIResults(results)
                     }
                 }
             })
